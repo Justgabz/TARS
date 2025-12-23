@@ -1,0 +1,14 @@
+mi piacerebbe aggiungere un database con tutte le roccie registrate dal robot: si suppone che il robot sia progettato per fare viaggi interstellari.
+quindi direi di renderlo resistente a temperature estreme e di permettergli di camminare su superfici scomode e non lineari.
+comunque,partiamo dalle prime cose che faro:
+
+
+1)general database
+nel database si possono memorizzare info su pianeti,stelle e cosi via; fai un database ampio modulare generico,fai una base solida; il database in questo progetto conviene farlo online e accessibile da rete e quindi da altri dispositivi; 
+ti conviene fare un server accessibile online/webapp dove gestisci sia robot che database!
+
+
+1.2)rock recognition
+voglio fare un'ai che riesca a classificare le rocce e,se non riconosciute , identificarle come mai viste e inserirle nel database.(nel database ci metto un paio di rocce terrestri nel dubbio)
+quindi nel database ho questo mucchio di rocce identificate e il robot riuscira con un modello di AI a capire se una roccia che sta osservando è gia stata identificata o meno
+(difficile) applicare un sensore che rileva la materia presente sulla roccia
