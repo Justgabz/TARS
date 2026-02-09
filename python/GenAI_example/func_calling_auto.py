@@ -1,7 +1,13 @@
 from rich.console import Console
 from rich.markdown import Markdown
 from prep import genai, MODEL 
+
 #ESEMPIO DI FUNCTION CALLING MANUALE!SE METTI AUTOMATICO SI SEMPLIFICA PERCHE' LA AVVIA DA SOLA
+
+#nel function calling automatico l'AI capisce quale funzione è opportuna avviare 
+# in base alla richiesta dell utente leggendo:
+#-commenti parametri e nome della funzione ; decidendo se è opportuno avviare tale funzione.
+
 def set_light_values(brightness: int, color_temp: str) -> dict:
     """Set the brightness and color temperature of a room light. (mock API).
 

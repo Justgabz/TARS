@@ -1,0 +1,1 @@
+1) se avvii il file da una directory, allora tutti i path nel codice devono essere espressi a partire dalla directory da cui si è avviato il file
