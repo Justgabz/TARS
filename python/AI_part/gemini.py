@@ -16,6 +16,8 @@ class GeminiBot:
             raise ValueError("MODEL is not set. Check your .env for MODEL_GEMINI_2_FLASH.")
         self.model_name = model_name or MODEL
         self.gen_model = genai.GenerativeModel(model_name=self.model_name)
+        self.session = None #sessione di chat per func calling
+
         #watch normalize prompt for understanding the allowed types of input
 
     
@@ -132,9 +134,22 @@ class GeminiBot:
         enable_automatic_function_calling: bool = True,
     ) -> Any: #restituisce un oggetto di sessione chat
         self.configure(generation_config=generation_config, tools=tools)
-        return self.start_chat(
-            enable_automatic_function_calling=enable_automatic_function_calling
-        ) #esempio session = self.start_chat ; session.send(bla bla bla)
+        self.session = self.start_chat(
+            enable_automatic_function_calling=enable_automatic_function_calling)
+        return self.session
+
+    #funzione che si occupa di mandare il messaggio in una sessione di func calling 
+    def send_function_chat_message(
+        self,
+        message: Any,
+        chat_session: Optional[Any] = None,
+    ) -> Any:
+        session = chat_session or self.session
+        if session is None:
+            raise ValueError("Chat session not started. Call start_function_chat() first.")
+        return session.send_message(self._normalize_prompt(message))
+    
+     #esempio session = self.start_chat ; session.send(bla bla bla)
     
     #IN ENTRAMBE LE FUNZIONI, O PUOI PASSARE COME PARAMETRO LA SESSIONE DI CHAT, ALTRIMENTI
     #INVII UN SOLO MESSAGGIO CREANDO UNA NUOVA SESSIONE CHE NON PUOI RIUTILIZZARE
