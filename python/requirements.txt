@@ -1,0 +1,10 @@
+# Core runtime deps
+google-generativeai
+python-dotenv
+pillow
+speechrecognition
+pvporcupine
+pyaudio
+playsound
+pyttsx3
+opencv-python
