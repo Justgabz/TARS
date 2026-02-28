@@ -1,1 +1,3 @@
-1 : registrare una stream di audio appena rilevata l'hotword
+1 : vedere se tutto funziona su rasp
+2 : programmare classe controllo hardware 
+3 : programmare il client ( o react native o html,scegli in base alle esigenze(server privato vs pubblico))
