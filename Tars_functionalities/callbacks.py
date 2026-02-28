@@ -1,7 +1,7 @@
 import os
 from typing import Optional
 
-from AI_part.robot_loop import RobotPerception
+from python.AI_part.robot_Perceptions import RobotPerception
 from AI_part.gemini import GeminiBot
 
 
