@@ -1,0 +1,206 @@
+:root {
+    --tars-black: #0a0a0a;
+    --tars-gray: #2d2d2d;
+    --tars-accent: #00ff41; 
+    --tars-red: #ff3e3e;
+    --font-main: 'Courier New', Courier, monospace;
+}
+
+/* Reset e Base */
+body {
+    background-color: var(--tars-black);
+    color: var(--tars-accent);
+    font-family: var(--font-main);
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#tars-container {
+    width: 90vw;
+    height: 90vh;
+    border: 2px solid var(--tars-gray);
+    display: grid;
+    grid-template-rows: 1fr 220px 280px; /* Video, Log, Controlli */
+    padding: 10px;
+    gap: 10px;
+}
+
+/* --- FEED VIDEO --- */
+#video-feed {
+    position: relative;
+    border: 3px solid var(--tars-gray); 
+    background-color: #1a1a1a;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#video-feed img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0; 
+    transition: opacity 0.5s ease;
+    z-index: 1;
+}
+
+#video-feed img.streaming {
+    opacity: 0.8;
+}
+
+#video-feed::before {
+    content: "NO SIGNAL";
+    color: var(--tars-gray);
+    font-size: 1.2rem;
+    letter-spacing: 5px;
+    position: absolute;
+    z-index: 0;
+}
+
+/* --- LOG DI SISTEMA --- */
+.log-wrapper {
+    position: relative;
+    border: 1px solid var(--tars-gray);
+    background: rgba(255, 255, 255, 0.03);
+}
+
+#output-log {
+    height: 100%;
+    padding: 10px;
+    font-size: 0.85rem;
+    overflow-y: auto;
+    text-transform: uppercase;
+    box-sizing: border-box;
+}
+
+#btn-clear {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    background: transparent;
+    border: 1px solid var(--tars-gray);
+    color: var(--tars-gray);
+    cursor: pointer;
+    z-index: 2;
+}
+
+#btn-clear:hover {
+    color: var(--tars-red);
+    border-color: var(--tars-red);
+}
+
+/* --- SEZIONE CONTROLLI --- */
+#controls {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 20px;
+}
+
+#joycon-zone {
+    background: rgba(45, 45, 45, 0.5);
+    border: 1px solid var(--tars-gray);
+    border-radius: 5px;
+    position: relative;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* --- PARAMETRI COMPATTI (Honesty) --- */
+.param-box-mini {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 5px 10px;
+    background: rgba(0, 255, 65, 0.05);
+    border: 1px solid var(--tars-gray);
+}
+
+.param-box-mini label {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    min-width: 120px;
+}
+
+/* Styling personalizzato Slider */
+input[type="range"] {
+    -webkit-appearance: none;
+    flex-grow: 1;
+    background: transparent;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 2px;
+    background: var(--tars-gray);
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 16px;
+    width: 8px;
+    background: var(--tars-accent);
+    margin-top: -7px;
+    cursor: pointer;
+    border-radius: 0;
+}
+
+/* --- BARRA AZIONI (Testo, Send, Mic) --- */
+.action-bar {
+    display: flex;
+    gap: 10px;
+}
+
+input[type="text"] {
+    flex-grow: 1;
+    background: transparent;
+    border: 1px solid var(--tars-gray);
+    color: var(--tars-accent);
+    padding: 12px;
+    font-family: var(--font-main);
+    outline: none;
+}
+
+input[type="text"]:focus {
+    border-color: var(--tars-accent);
+}
+
+button {
+    background: var(--tars-accent);
+    color: var(--tars-black);
+    border: none;
+    padding: 0 20px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+button:hover {
+    filter: brightness(0.8);
+}
+
+#btn-mic {
+    font-size: 1.2rem;
+    padding: 0 15px;
+}
+
+#btn-mic.recording {
+    background: var(--tars-red);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
