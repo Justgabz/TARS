@@ -2,8 +2,10 @@ import os
 import cv2
 from flask import Flask, Response, request, jsonify
 from flask_socketio import SocketIO, emit 
-from flask.ext.cors import CORS, cross_origin
+from flask_cors import CORS
 
+#Su portatile,usa python piu vecchio per vedere le librerie
+#to do:cosa sono CORS
 #pip install eventlet #pip install flask_socketIO
 '''
 In informatica, 0.0.0.0 è un indirizzo speciale che significa "ascolta su tutte le reti possibili". 
@@ -11,11 +13,9 @@ Va bene per il Server (per dire "accetto connessioni da chiunque"),
 '''
 
 app = Flask(__name__)
-# Usiamo eventlet per gestire migliaia di micro-transazioni senza lag
-# Cambia async_mode in 'gevent'
-cors = CORS(app)
+CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
-socketio = SocketIO(app)
+socketio = SocketIO(app,cors_allowed_origins="*")
 
 
 # Stato interno di TARS (il "Cervello")
@@ -101,4 +101,4 @@ if __name__ == '__main__':
     print("--- TARS SERVER STARTING ON PORT 8000 (GEVENT) ---")
     # IMPORTANTE: Su Windows, con i socket, il debugger a volte rompe. 
     # Prova prima con debug=False per stabilizzare.
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True,port=8000)
