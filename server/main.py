@@ -8,7 +8,7 @@ import time
 #librerie custom che ho fatto io per l'AI
 from Tars_functionalities.AI_part.gemini import GeminiBot
 from Tars_functionalities.AI_part.robot_Perceptions import RobotPerception
-from Tars_functionalities.AI_part.robot_control import Robot_Hardware
+from server.robot_control import Robot_Hardware
 
 #Su portatile,usa python piu vecchio per vedere le librerie
 #to do:cosa sono CORS
