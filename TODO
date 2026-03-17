@@ -2,3 +2,4 @@
 2 : programmare classe controllo hardware 
 3 : programmare il client ( o react native o html,scegli in base alle esigenze(server privato vs pubblico))
 4 : Vedere cosa sono i cors
+5: perchè usare http se piu lento e,nel mio caso,funziona uguale ai socket

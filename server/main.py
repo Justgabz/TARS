@@ -3,6 +3,12 @@ import cv2
 from flask import Flask, Response, request, jsonify
 from flask_socketio import SocketIO, emit 
 from flask_cors import CORS
+import time 
+
+#librerie custom che ho fatto io per l'AI
+from Tars_functionalities.AI_part.gemini import GeminiBot
+from Tars_functionalities.AI_part.robot_Perceptions import RobotPerception
+from Tars_functionalities.AI_part.robot_control import Robot_Hardware
 
 #Su portatile,usa python piu vecchio per vedere le librerie
 #to do:cosa sono CORS
@@ -11,6 +17,15 @@ from flask_cors import CORS
 In informatica, 0.0.0.0 è un indirizzo speciale che significa "ascolta su tutte le reti possibili". 
 Va bene per il Server (per dire "accetto connessioni da chiunque"),
 '''
+
+base_path = os.path.dirname(os.path.abspath(__file__))
+keyword_path = os.path.join(base_path, "Tars_functionalities", "Hey_tars.ppn")
+#classi custom per l'ai e controllo robot
+
+Geminibot = GeminiBot()
+Robotperception = RobotPerception(keyword_path=keyword_path)
+Robot_hardware = Robot_Hardware()
+
 
 app = Flask(__name__)
 CORS(app)
@@ -25,19 +40,25 @@ tars_state = {
     "last_command": None
 }
 
-# --- 1. STREAMING VIDEO (MJPEG) ---
+Robotperception.start_capture() #avvia la cattura del frame in un altro thread
+
+#STREAM VIDEO MJPEG(da errore qui non so perchè)(confronta con codice vecchio senza)
+#la tua libreria
 def gen_frames():
-    camera = cv2.VideoCapture(0) # 0 = webcam. Cambia se hai una cam specifica.
     while True:
-        success, frame = camera.read()
-        if not success:
-            break
-        else:
-            # Opzionale: qui potresti disegnare overlay su 'frame' usando OpenCV
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+        frame = Robotperception.get_latest_frame()
+        if frame is None:
+            time.sleep(0.01) # Evita di friggere la CPU se il frame non è pronto
+            continue 
+        
+        # Encoding
+        ret, buffer = cv2.imencode('.jpg', frame)
+        if not ret:
+            continue
+            
+        frame_bytes = buffer.tobytes()
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
 
 @app.route('/video_feed')
  #Gemini ha detto
@@ -93,6 +114,7 @@ def handle_message(msg):
     print(f"[CMD]: Ricevuto ordine testuale: {msg}")
     # Risposta di TARS al log del client
     emit('status', {'msg': f'ESECUZIONE: {msg.upper()}'})
+    #manda al client una risposta
 
 if __name__ == '__main__':
     if not os.path.exists("uploads"):

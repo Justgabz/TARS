@@ -88,8 +88,7 @@ class RobotPerception:
         with self._frame_lock:
             if self.latest_frame is None:
                 return None
-            return self.latest_frame.copy() if copy and hasattr(self.latest_frame, "copy") else self.latest_frame
-        
+            return self.latest_frame.copy()
     ''''
     NUOVO CODICE --------------------------------
     '''
