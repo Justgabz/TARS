@@ -2,7 +2,7 @@
 
 from python.AI_part.robot_Perceptions import RobotPerception
 from AI_part.gemini import GeminiBot
-from AI_part.robot_control import robot as robot_controller
+from server.robot_control import robot as robot_controller
 from callbacks import hotword_callback_factory
 
 
