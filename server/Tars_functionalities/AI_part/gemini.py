@@ -2,7 +2,9 @@
 
 from typing import Any, Callable, Dict, Iterable, Optional, Sequence, Tuple
 
-from AI_part.prep import MODEL, genai
+# CORRETTO (Il punto indica "nella cartella dove si trova questo file")
+#senza punto considererebbe il path a partire dal main
+from .prep import MODEL, genai
 
 try:
     from PIL import Image

@@ -1,4 +1,4 @@
-class robot:
+class Robot_Hardware:
     def __init__(self):
         pass
 

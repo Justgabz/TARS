@@ -46,6 +46,8 @@ socket.on('connect_error', (err) => {
 let mediaRecorder;
 let audioChunks = [];
 
+//gestore cattura msg vocale
+//quando la registrazione termina,il messaggio viene automaticamente inviato
 document.getElementById('btn-mic').onclick = async () => {
     const btn = document.getElementById('btn-mic');
     
@@ -69,10 +71,37 @@ document.getElementById('btn-mic').onclick = async () => {
     }
 };
 
+
+// Gestione click sul pulsante INVIO
+document.getElementById('btn-send').onclick = () => {
+    const input = document.getElementById('command-input');
+    const message = input.value.trim(); // .trim() rimuove spazi vuoti inutili
+
+    if (message !== "") {
+        // 1. Invia il messaggio al server tramite la funzione che hai già creato
+        sendMessage(message);
+
+        // 2. Opzionale: Mostra il messaggio inviato nel log locale (feedback visivo)
+        const log = document.getElementById('output-log');
+        log.innerHTML += `<div style="color: #00ff00;">[YOU]: ${message}</div>`;
+        log.scrollTop = log.scrollHeight;
+
+        // 3. Pulisci l'input per il prossimo comando
+        input.value = "";
+    }
+};
+
 function sendAudio(blob) {
     const formData = new FormData();
     formData.append('voice', blob);
     fetch('http://localhost:8000/upload_audio', { method: 'POST', body: formData });
+}
+
+function sendMessage(msg_user)
+{
+//nel server : @socketio.on('chat_message')
+socket.emit('chat_message', msg_user);
+
 }
 
 const vFeed = document.querySelector('#video-feed img');
