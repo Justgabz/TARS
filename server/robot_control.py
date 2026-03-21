@@ -53,6 +53,8 @@ class Robot_Hardware:
 
 
 
+
+
 #se avvio questo file come main,fai questo
 if __name__ == "__main__":
     rr = Robot_Hardware()
