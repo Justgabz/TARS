@@ -4,11 +4,12 @@ from flask import Flask, Response, request, jsonify
 from flask_socketio import SocketIO, emit 
 from flask_cors import CORS
 import time 
+from math import sin,cos,sqrt,radians
 
 #librerie custom che ho fatto io per l'AI
 from Tars_functionalities.AI_part.gemini import GeminiBot
 from Tars_functionalities.AI_part.robot_Perceptions import RobotPerception
-from server.robot_control import Robot_Hardware
+from robot_control import Robot_Hardware
 
 #Su portatile,usa python piu vecchio per vedere le librerie
 #to do:cosa sono CORS
@@ -17,6 +18,23 @@ from server.robot_control import Robot_Hardware
 In informatica, 0.0.0.0 è un indirizzo speciale che significa "ascolta su tutte le reti possibili". 
 Va bene per il Server (per dire "accetto connessioni da chiunque"),
 '''
+def convert_joystick_data(power,angle):
+    angle = radians(angle) #converto l'angolo in radianti
+    max_power = 100
+    power_norm = int(power/(power/100)) 
+
+    motordx = int(  power_norm*( sin(angle) - cos(angle)    ) )
+    
+    motorsx = int(   power_norm*(  sin(angle) + cos(angle)   ) )
+
+    #limita motordx e motorsx tra -100 e 100
+    motordx = max(-100,min(100,motordx))
+    motorsx = max(-100,min(100,motordx))
+
+    return (motordx,motorsx)
+
+
+
 
 base_path = os.path.dirname(os.path.abspath(__file__))
 keyword_path = os.path.join(base_path, "Tars_functionalities", "Hey_tars.ppn")
@@ -24,7 +42,12 @@ keyword_path = os.path.join(base_path, "Tars_functionalities", "Hey_tars.ppn")
 
 Geminibot = GeminiBot()
 Robotperception = RobotPerception(keyword_path=keyword_path)
-Robot_hardware = Robot_Hardware()
+
+try:
+    Robot_hardware = Robot_Hardware()
+except:
+    print("error on initializing motor control library,\n" \
+    "please make sure u are on a raspberry")
 
 
 app = Flask(__name__)
@@ -98,6 +121,7 @@ def handle_move(data):
     # LOGICA DI MOVIMENTO (Qui entra in gioco il tuo lavoro di progettista)
     # Dovrai convertire questi valori in velocità per i motori
     print(f"[NAV]: Angolo {angle:.2f} | Forza {distance:.2f}")
+    print(f"motori corrispondenti(dx e sx)---> {convert_joystick_data(distance,angle)}")
 
 @socketio.on('update_param')
 def handle_params(data):
@@ -124,3 +148,6 @@ if __name__ == '__main__':
     # IMPORTANTE: Su Windows, con i socket, il debugger a volte rompe. 
     # Prova prima con debug=False per stabilizzare.
     socketio.run(app, debug=True,port=8000)
+
+
+
