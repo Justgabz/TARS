@@ -5,7 +5,7 @@ from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 import time 
 from math import sin,cos,sqrt,radians
-
+#sssss
 #librerie custom che ho fatto io per l'AI
 from Tars_functionalities.AI_part.gemini import GeminiBot
 from Tars_functionalities.AI_part.robot_Perceptions import RobotPerception
