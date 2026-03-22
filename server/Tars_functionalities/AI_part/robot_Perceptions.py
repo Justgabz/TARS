@@ -51,7 +51,7 @@ class RobotPerception:
             print("cv2 is not installed; frame capture thread exiting.")
             return
 
-        cap = cv2.VideoCapture(self._camera_index)
+        cap = cv2.VideoCapture(self._camera_index,cv2.CAP_DSHOW)
         if not cap.isOpened():
             print(f"Unable to open camera index {self._camera_index}; frame capture thread exiting.")
             cap.release()
