@@ -9,7 +9,7 @@ class Robot_Hardware:
 
         # Motore Destro (Ex Motore B)
         # Nota: I pin sono invertiti nel costruttore per gestire la specchiatura hardware
-        self._right_dir = Motor(forward=23, backward=22) 
+        self._right_dir = Motor(forward=22, backward=23) 
         self._right_pwm = PWMOutputDevice(19)
 
     def _control_motor(self, motor_obj, pwm_obj, speed):

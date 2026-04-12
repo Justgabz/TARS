@@ -27,12 +27,16 @@ keyword_path = os.path.join(base_path, "Tars_functionalities", "Hey_tars.ppn")
 
 Geminibot = GeminiBot()
 Robotperception = RobotPerception(keyword_path=keyword_path)
-motors_sensors = Robot_Hardware()
+
+# --- INIZIALIZZAZIONE HARDWARE SICURA ---
+motors_sensors = None
 
 try:
-    Robot_hardware = Robot_Hardware()
+    # Ne creiamo UNO SOLO e lo chiamiamo in modo coerente
+    motors_sensors = Robot_Hardware()
+    print("[SYS]: Hardware inizializzato con successo.")
 except Exception as e:
-    print(f"[ERROR]: Controllo motori non disponibile (Probabilmente non sei su Raspberry Pi).")
+    print(f"[ERROR]: Impossibile inizializzare i motori: {e}")
 
 app = Flask(__name__)
 CORS(app) # Fondamentale per far comunicare il frontend con il backend
@@ -122,4 +126,4 @@ if __name__ == '__main__':
     
     # Usiamo il server integrato di Flask. 
     # NOTA: Per performance serie su Raspberry, servirebbe Gunicorn o Waitress.
-    app.run(host='0.0.0.0', port=8000, debug=True, threaded=True)
+    app.run(host='0.0.0.0', port=8000, debug=True, threaded=True,use_reloader=False)
