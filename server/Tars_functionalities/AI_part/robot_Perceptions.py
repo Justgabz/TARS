@@ -44,28 +44,24 @@ class RobotPerception:
         self.keyword_path = self.keyword_paths
         self._activation_mp3_path = os.path.join(os.path.dirname(__file__), "activate.mp3")
 
-    def _capture_loop(self) -> None: #il loop di cattura che verrà avviato con il multithreading
-        try:
-            import cv2
-        except ImportError:
-            print("cv2 is not installed; frame capture thread exiting.")
-            return
+    def _capture_loop(self) -> None:
+        import cv2
+        # Inizializza SENZA CAP_DSHOW se non è strettamente necessario, 
+        # o assicurati che sia coerente.
+        cap = cv2.VideoCapture(self._camera_index)
+        
+        # OPZIONALE: Abbassa la risoluzione qui per risparmiare CPU
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
-        cap = cv2.VideoCapture(self._camera_index,cv2.CAP_DSHOW)
-        if not cap.isOpened():
-            print(f"Unable to open camera index {self._camera_index}; frame capture thread exiting.")
-            cap.release()
-            return
-
-        frame_interval = 1.0 / self._fps if self._fps > 0 else 0.0
         try:
             while not self._capture_stop.is_set():
                 ok, frame = cap.read()
                 if ok:
                     with self._frame_lock:
                         self.latest_frame = frame
-                if frame_interval > 0:
-                    time.sleep(frame_interval)
+                else:
+                    time.sleep(0.1) # Se fallisce, aspetta un attimo
         finally:
             cap.release()
 

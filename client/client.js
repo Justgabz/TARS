@@ -59,19 +59,38 @@ document.getElementById('btn-send').onclick = () => {
     }
 };
 
+// --- GESTIONE SLIDER HONESTY ---
+const honestySlider = document.getElementById('honesty-slider');
+const honestyDisplay = document.getElementById('honesty-display');
+
+// Aggiorna il testo accanto allo slider quando lo muovi
+honestySlider.oninput = function() {
+    honestyDisplay.innerText = this.value;
+};
+
+// Inizializza il display al caricamento
+honestyDisplay.innerText = honestySlider.value;
+
+
+// --- MODIFICA INVIO MESSAGGIO ---
 async function sendMessage(msg_user) {
+    const honestyValue = parseInt(honestySlider.value); // Recupera il valore attuale
+
     try {
         const response = await fetch(`${SERVER_URL}/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ msg: msg_user })
+            body: JSON.stringify({ 
+                msg: msg_user, 
+                honesty: honestyValue // Inviato insieme al messaggio
+            })
         });
-        const data = await response.json();
         
-        // La risposta del server (TARS) la scriviamo nel log
+        const data = await response.json();
         updateLog(`[TARS]: ${data.reply}`, "cyan");
+        
     } catch (err) {
-        updateLog("[ERROR]: Impossibile raggiungere TARS", "red");
+        updateLog("[ERROR]: Impossibile raggiungere TARS", "var(--tars-red)");
     }
 }
 
