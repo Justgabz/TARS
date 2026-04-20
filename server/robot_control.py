@@ -51,6 +51,15 @@ class Robot_Hardware:
         self._right_pwm.close()
 
 
+# --- CLASSE DI EMULAZIONE (Per evitare crash se l'hardware manca) ---
+class Robot_Hardware_Mock:
+    def __init__(self):
+        print("[MOCK]: Modalità simulazione ATTIVA (Hardware non trovato)")
+
+    def set_motors(self, dx, sx):
+        # Non fa nulla fisicamente, evita solo che il codice esploda
+        print(f"[MOCK-NAV]: Comando motori ricevuto -> DX: {dx}, SX: {sx}")
+
 
 
 

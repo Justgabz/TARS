@@ -9,7 +9,7 @@ from math import sin,cos,sqrt,radians
 #librerie custom che ho fatto io per l'AI
 from Tars_functionalities.AI_part.gemini import GeminiBot
 from Tars_functionalities.AI_part.robot_Perceptions import RobotPerception
-from robot_control import Robot_Hardware
+from robot_control import Robot_Hardware,Robot_Hardware_Mock
 
 #Su portatile,usa python piu vecchio per vedere le librerie
 #to do:cosa sono CORS
@@ -43,11 +43,14 @@ keyword_path = os.path.join(base_path, "Tars_functionalities", "Hey_tars.ppn")
 Geminibot = GeminiBot()
 Robotperception = RobotPerception(keyword_path=keyword_path)
 
+# --- INIZIALIZZAZIONE HARDWARE SICURA ---
 try:
-    Robot_hardware = Robot_Hardware()
-except:
-    print("error on initializing motor control library,\n" \
-    "please make sure u are on a raspberry")
+    motors_sensors = Robot_Hardware()
+    print("[SYS]: Hardware reale inizializzato con successo.")
+except Exception as e:
+    print(f"[WARNING]: Impossibile inizializzare l'hardware reale: {e}")
+    # Se fallisce, usiamo l'oggetto Mock invece di None
+    motors_sensors = Robot_Hardware_Mock()
 
 
 app = Flask(__name__)

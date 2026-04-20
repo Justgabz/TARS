@@ -4,11 +4,16 @@ import time
 from math import sin, cos, radians
 from flask import Flask, Response, request, jsonify
 from flask_cors import CORS
+import subprocess
+
+
 
 # Librerie custom (Assicurate che siano nel path)
 from Tars_functionalities.AI_part.gemini import GeminiBot
 from Tars_functionalities.AI_part.robot_Perceptions import RobotPerception
-from robot_control import Robot_Hardware
+from robot_control import Robot_Hardware,Robot_Hardware_Mock
+
+
 
 def convert_joystick_data(power, angle):
     angle_rad = radians(angle)
@@ -28,15 +33,19 @@ keyword_path = os.path.join(base_path, "Tars_functionalities", "Hey_tars.ppn")
 Geminibot = GeminiBot()
 Robotperception = RobotPerception(keyword_path=keyword_path)
 
+# Variabili globali "di emergenza"
+
 # --- INIZIALIZZAZIONE HARDWARE SICURA ---
 motors_sensors = None
 
+# --- INIZIALIZZAZIONE HARDWARE SICURA ---
 try:
-    # Ne creiamo UNO SOLO e lo chiamiamo in modo coerente
     motors_sensors = Robot_Hardware()
-    print("[SYS]: Hardware inizializzato con successo.")
+    print("[SYS]: Hardware reale inizializzato con successo.")
 except Exception as e:
-    print(f"[ERROR]: Impossibile inizializzare i motori: {e}")
+    print(f"[WARNING]: Impossibile inizializzare l'hardware reale: {e}")
+    # Se fallisce, usiamo l'oggetto Mock invece di None
+    motors_sensors = Robot_Hardware_Mock()
 
 app = Flask(__name__)
 CORS(app) # Fondamentale per far comunicare il frontend con il backend
@@ -67,9 +76,8 @@ def gen_frames():
 
 @app.route('/video_feed')
 def video_feed():
-    pass
     # MJPEG è uno standard HTTP nativo, non servono socket qui.
-    #return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(gen_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 # --- 2. MOVIMENTO (HTTP POST) ---
 @app.route('/move', methods=['POST'])
@@ -87,25 +95,26 @@ def move_robot():
     motors_sensors.set_motors(dx,sx)
     return jsonify({"status": "ok", "motors": [dx, sx]})
 
-# --- 3. PARAMETRI E STATO (HTTP POST) ---
-@app.route('/update_param', methods=['POST'])
-def update_params():
-    data = request.json
-    response_msg = "Parametri aggiornati."
-    
-    if 'honesty' in data:
-        tars_state['honesty'] = data['honesty']
-        print(f"[SYS]: Onestà al {tars_state['honesty']}%")
-        if tars_state['honesty'] < 10:
-            response_msg = "ATTENZIONE: Livello onestà critico. Non fidarti."
-
-    return jsonify({"status": "ok", "message": response_msg})
 
 # --- 4. MESSAGGI DI TESTO (HTTP POST) ---
 @app.route('/chat', methods=['POST'])
 def chat():
-    msg = request.json.get('msg', '')
-    print(f"[CMD]: Ricevuto: {msg}")
+    msg = request.json.get('msg', ' ')
+    honesty = request.json.get('honesty',' ')
+    print(f"[CMD]: Ricevuto: {msg} onestà : {honesty}")
+        # prompt = {
+        #     'text': 'Descrivi questa immagine',
+        #     'image': 'C:/path/to/img.jpg',
+        # }
+
+    full_message = {'text' : f"utente:msg \n per gemini:sei TARS di interstellar;livello di onestà : {honesty}%"}
+
+    if Geminibot.session:
+        response = Geminibot.send_function_chat_message(full_message)
+        print(response)
+    else:
+        print("sessione func calling non inizializzata")
+    
     # Qui chiameresti Geminibot.ask(msg)
     return jsonify({"status": "ok", "reply": f"ESECUZIONE: {msg.upper()}"})
 
@@ -123,7 +132,11 @@ def upload_audio():
 if __name__ == '__main__':
     if not os.path.exists("uploads"):
         os.makedirs("uploads")
-    
+
+    Geminibot.start_function_chat(tools=[])
+
+    #Robotperception.start_capture()
+
     # Usiamo il server integrato di Flask. 
     # NOTA: Per performance serie su Raspberry, servirebbe Gunicorn o Waitress.
     app.run(host='0.0.0.0', port=8000, debug=True, threaded=True,use_reloader=False)
