@@ -10,11 +10,14 @@ function updateLog(msg, color = "white") {
 
 // --- 1. VIDEO STREAMING (MJPEG) ---
 // Con MJPEG non serve JS per i frame. Basta puntare l'src dell'immagine all'URL.
+
+/*
 const vFeed = document.getElementById('robot-view'); 
 vFeed.src = `${SERVER_URL}/video_feed`;
 
 vFeed.onload = () => updateLog("[SYSTEM]: VIDEO STREAM CONNECTED", "white");
 vFeed.onerror = () => updateLog("[WARN]: VIDEO SIGNAL LOST", "var(--tars-red)");
+*/
 
 
 // --- 2. JOYCON (MOVIMENTO) ---
@@ -80,15 +83,15 @@ async function sendMessage(msg_user) {
         const response = await fetch(`${SERVER_URL}/chat`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                msg: msg_user, 
+            body: JSON.stringify({
+                msg: msg_user,
                 honesty: honestyValue // Inviato insieme al messaggio
             })
         });
-        
+
         const data = await response.json();
         updateLog(`[TARS]: ${data.reply}`, "cyan");
-        
+
     } catch (err) {
         updateLog("[ERROR]: Impossibile raggiungere TARS", "var(--tars-red)");
     }
@@ -117,7 +120,7 @@ async function sendAudio(blob) {
 let mediaRecorder;
 let audioChunks = [];
 
-document.getElementById('btn-mic').onclick = async () => {
+document.getElementById('btn-mic').onclick = async() => {
     const btn = document.getElementById('btn-mic');
     if (!mediaRecorder || mediaRecorder.state === "inactive") {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });

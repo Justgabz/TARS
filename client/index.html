@@ -1,43 +1,46 @@
 <!DOCTYPE html>
 <html lang="it">
+
 <head>
     <meta charset="UTF-8">
     <title>TARS - Remote Control Unit</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <div id="tars-container">
-    <section id="video-feed">
-        <img id="robot-view" alt="TARS Vision">
-    </section>
+        <section id="video-feed">
+            <img id="robot-view" src="http:/127.0.0.1:8000/video_feed" alt="TARS Vision">
+        </section>
 
-    <div class="log-wrapper">
-        <div id="output-log">In attesa di connessione...</div>
-        <button id="btn-clear">CLEAR LOG</button>
+        <div class="log-wrapper">
+            <div id="output-log">In attesa di connessione...</div>
+            <button id="btn-clear">CLEAR LOG</button>
+        </div>
+
+        <section id="controls">
+            <div id="joycon-zone">
+                <div id="joystick"></div>
+            </div>
+
+            <div class="input-group">
+                <div class="param-box-mini">
+                    <label for="honesty-slider">HONESTY: <span id="honesty-display"></span>%</label>
+                    <input type="range" id="honesty-slider" min="0" max="100" value="70" step="1">
+                </div>
+
+                <div class="action-bar">
+                    <input type="text" id="command-input" placeholder="Invia ordine...">
+                    <button id="btn-send">INVIO</button>
+                    <button id="btn-mic">🎤</button>
+                </div>
+            </div>
+        </section>
     </div>
-
-    <section id="controls">
-        <div id="joycon-zone">
-            <div id="joystick"></div>
-        </div>
-        
-        <div class="input-group">
-            <div class="param-box-mini">
-                <label for="honesty-slider">HONESTY: <span id="honesty-display"></span>%</label>
-                <input type="range" id="honesty-slider" min="0" max="100" value="70" step="1">
-            </div>
-
-            <div class="action-bar">
-                <input type="text" id="command-input" placeholder="Invia ordine...">
-                <button id="btn-send">INVIO</button>
-                <button id="btn-mic">🎤</button>
-            </div>
-        </div>
-    </section>
-</div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/nipplejs/0.9.0/nipplejs.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
     <script src="client.js"></script>
 </body>
+
 </html>

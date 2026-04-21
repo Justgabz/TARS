@@ -5,6 +5,7 @@ from math import sin, cos, radians
 from flask import Flask, Response, request, jsonify
 from flask_cors import CORS
 import subprocess
+import atexit # <--- Aggiungi questo import
 
 
 
@@ -13,6 +14,16 @@ from Tars_functionalities.AI_part.gemini import GeminiBot
 from Tars_functionalities.AI_part.robot_Perceptions import RobotPerception
 from robot_control import Robot_Hardware,Robot_Hardware_Mock
 
+
+# Funzione di pulizia
+def cleanup():
+    if camera.isOpened():
+        camera.release()
+        print("[SYS]: Camera rilasciata correttamente.")
+    cv2.destroyAllWindows()
+
+# Registra la funzione per essere chiamata alla chiusura
+atexit.register(cleanup)
 
 
 def convert_joystick_data(power, angle):
@@ -58,21 +69,42 @@ tars_state = {
 
 #Robotperception.start_capture() da problemi!!!
 
-# --- 1. VIDEO STREAMING (MJPEG su HTTP) ---
+# --- INIZIALIZZAZIONE CAMERA ---
+# Inizializziamo la camera globalmente per evitare di riaprirla a ogni richiesta
+camera = cv2.VideoCapture(0) 
+
+# Opzionale: Imposta risoluzione per non saturare la banda (MJPEG è pesante)
+camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+camera.set(cv2.CAP_PROP_FPS, 20)
+
+if not camera.isOpened():
+    print("[ERROR]: Impossibile accedere alla telecamera.")
+
+# --- 1. VIDEO STREAMING (OpenCV + MJPEG) ---
 def gen_frames():
     while True:
-        frame = Robotperception.get_latest_frame()
-        if frame is None:
-            time.sleep(0.01)
-            continue 
-        
-        ret, buffer = cv2.imencode('.jpg', frame)
-        if not ret:
+        # Cattura frame-by-frame
+        success, frame = camera.read()
+        if not success:
+            print("frame inesistente")
+            # Se la camera fallisce, non crashare il thread, aspetta e riprova
+            time.sleep(0.1)
             continue
+        else:
+            # Codifica in JPG
+            ret, buffer = cv2.imencode('.jpg', frame)
+            if not ret:
+                continue
+                
+            frame_bytes = buffer.tobytes()
             
-        frame_bytes = buffer.tobytes()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+            # Formato MJPEG standard
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
+            
+
+
 
 @app.route('/video_feed')
 def video_feed():
@@ -133,9 +165,11 @@ if __name__ == '__main__':
     if not os.path.exists("uploads"):
         os.makedirs("uploads")
 
-    Geminibot.start_function_chat(tools=[])
 
-    #Robotperception.start_capture()
+    '''verificare se questa funzione è bloccante'''
+
+    #Geminibot.start_function_chat(tools=[]) 
+
 
     # Usiamo il server integrato di Flask. 
     # NOTA: Per performance serie su Raspberry, servirebbe Gunicorn o Waitress.

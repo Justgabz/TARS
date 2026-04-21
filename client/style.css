@@ -1,12 +1,14 @@
 :root {
     --tars-black: #0a0a0a;
     --tars-gray: #2d2d2d;
-    --tars-accent: #00ff41; 
+    --tars-accent: #00ff41;
     --tars-red: #ff3e3e;
     --font-main: 'Courier New', Courier, monospace;
 }
 
+
 /* Reset e Base */
+
 body {
     background-color: var(--tars-black);
     color: var(--tars-accent);
@@ -24,27 +26,43 @@ body {
     height: 90vh;
     border: 2px solid var(--tars-gray);
     display: grid;
-    grid-template-rows: 1fr 220px 280px; /* Video, Log, Controlli */
+    grid-template-rows: 1fr 220px 280px;
+    /* Video, Log, Controlli */
     padding: 10px;
     gap: 10px;
 }
 
+
 /* --- FEED VIDEO --- */
+
 #video-feed {
     position: relative;
-    border: 3px solid var(--tars-gray); 
+    border: 3px solid var(--tars-gray);
     background-color: #1a1a1a;
     overflow: hidden;
+    /* FORZA IL QUADRATO */
+    aspect-ratio: 1 / 1;
+    /* IMPEDISCE DI SUPERARE I LIMITI DELLA GRIGLIA */
+    max-width: 100%;
+    max-height: 100%;
+    /* CENTRA IL QUADRATO NELLA SUA RIGA */
+    justify-self: center;
+    align-self: center;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+
+/* --- FEED VIDEO --- */
+
 #video-feed img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0; 
+    /* Nota: questo potrebbe tagliare i bordi se il rapporto forma è diverso */
+    opacity: 1;
+    /* <--- CAMBIA DA 0 A 1 */
     transition: opacity 0.5s ease;
     z-index: 1;
 }
@@ -62,7 +80,9 @@ body {
     z-index: 0;
 }
 
+
 /* --- LOG DI SISTEMA --- */
+
 .log-wrapper {
     position: relative;
     border: 1px solid var(--tars-gray);
@@ -96,7 +116,9 @@ body {
     border-color: var(--tars-red);
 }
 
+
 /* --- SEZIONE CONTROLLI --- */
+
 #controls {
     display: grid;
     grid-template-columns: 200px 1fr;
@@ -116,7 +138,9 @@ body {
     justify-content: space-between;
 }
 
+
 /* --- PARAMETRI COMPATTI (Honesty) --- */
+
 .param-box-mini {
     display: flex;
     align-items: center;
@@ -132,7 +156,9 @@ body {
     min-width: 120px;
 }
 
+
 /* Styling personalizzato Slider */
+
 input[type="range"] {
     -webkit-appearance: none;
     flex-grow: 1;
@@ -155,7 +181,9 @@ input[type="range"]::-webkit-slider-thumb {
     border-radius: 0;
 }
 
+
 /* --- BARRA AZIONI (Testo, Send, Mic) --- */
+
 .action-bar {
     display: flex;
     gap: 10px;
@@ -200,7 +228,13 @@ button:hover {
 }
 
 @keyframes pulse {
-    0% { opacity: 1; }
-    50% { opacity: 0.5; }
-    100% { opacity: 1; }
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
 }
