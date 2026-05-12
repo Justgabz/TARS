@@ -210,4 +210,4 @@ class GeminiBot:
     
 
 
-geminibot = GeminiBot
+

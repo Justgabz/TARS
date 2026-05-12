@@ -44,6 +44,8 @@ keyword_path = os.path.join(base_path, "Tars_functionalities", "Hey_tars.ppn")
 Geminibot = GeminiBot()
 Robotperception = RobotPerception(keyword_path=keyword_path)
 
+
+
 # Variabili globali "di emergenza"
 
 # --- INIZIALIZZAZIONE HARDWARE SICURA ---
@@ -127,28 +129,62 @@ def move_robot():
     motors_sensors.set_motors(dx,sx)
     return jsonify({"status": "ok", "motors": [dx, sx]})
 
+#sistemiamo dopo per il func calling
+try:
+    Geminibot.start_function_chat(tools=[],enable_automatic_function_calling=False)
+    #la sessione sarà salvata in un attributo dell'oggetto Geminibot
+except:
+    print("fallimento nell'inizializzazione della sessione per il func calling")
 
-# --- 4. MESSAGGI DI TESTO (HTTP POST) ---
 @app.route('/chat', methods=['POST'])
 def chat():
-    msg = request.json.get('msg', ' ')
-    honesty = request.json.get('honesty',' ')
-    print(f"[CMD]: Ricevuto: {msg} onestà : {honesty}")
-        # prompt = {
-        #     'text': 'Descrivi questa immagine',
-        #     'image': 'C:/path/to/img.jpg',
-        # }
+    try:
+        # Recupero dati e validazione minima
+        data = request.json
+        if not data:
+            return jsonify({"status": "error", "message": "JSON mancante"}), 400
+            
+        msg = data.get('msg', ' ')
+        honesty = data.get('honesty', '90') # Default alto, come richiesto
+        
+        print(f"[CMD]: Ricevuto: {msg} | Onestà: {honesty}%")
 
-    full_message = {'text' : f"utente:msg \n per gemini:sei TARS di interstellar;livello di onestà : {honesty}%"}
+        full_message = {
+            'text': f"utente: {msg} \nistruzioni: sei TARS; livello onestà: {honesty}%"
+        }
 
-    if Geminibot.session:
+        if not Geminibot.session:
+            # Non ha senso procedere se la sessione è morta
+            raise ConnectionError("Sessione GenAI non inizializzata")
+
+        # Esecuzione chiamata
         response = Geminibot.send_function_chat_message(full_message)
-        print(response)
-    else:
-        print("sessione func calling non inizializzata")
-    
-    # Qui chiameresti Geminibot.ask(msg)
-    return jsonify({"status": "ok", "reply": f"ESECUZIONE: {msg.upper()}"})
+
+        text_resp = "a" #vedi come prendere il campo text di response
+
+        Robotperception.text_to_speech(text=text_resp)
+        
+
+        
+        # Se arriviamo qui, la chiamata è riuscita
+        return jsonify({
+            "status": "ok", 
+            "reply": response
+        })
+
+    except Exception as e:
+        # Cattura l'errore specifico di GenAI o qualsiasi altro crash
+        error_type = type(e).__name__
+        error_msg = str(e)
+        
+        print(f"[ERROR] {error_type}: {error_msg}")
+        
+        # Restituisci l'errore al client con codice 500
+        return jsonify({
+            "status": "error",
+            "type": error_type,
+            "details": error_msg
+        }), 500
 
 # --- 5. UPLOAD AUDIO ---
 @app.route('/upload_audio', methods=['POST'])

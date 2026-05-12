@@ -1,0 +1,5 @@
+1)api key:aggiornarla e testarla
+2) settare il func calling con i metodi e vedere come farli eseguire dal chatbot
+3) settare il sistema della hotword:vedere come farla girare in parallelo al server
+senza creare casini
+4)appena hai fatto tutto l'algoritmo completo,testare su linux,sopratutto sst e testare
