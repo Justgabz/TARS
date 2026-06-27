@@ -305,6 +305,26 @@ class RobotPerception:
         self._play_mp3(self._activation_mp3_path)
 
         return audio.get_wav_data()
+    
+    def record_audio_linux(self):
+        import speech_recognition as sr
+        r = sr.Recognizer()
+        
+        # Su Linux il rumore di fondo è gestito peggio, 
+        # meglio calibrare ogni volta se l'ambiente cambia.
+        with sr.Microphone() as source:
+            print("[AUDIO]: Calibrazione rumore...")
+            r.adjust_for_ambient_noise(source, duration=1)
+            
+            self._play_mp3(self._activation_mp3_path) # Feedback sonoro
+            print("[AUDIO]: In ascolto...")
+            audio = r.listen(source, timeout=5, phrase_time_limit=10)
+
+        # Salvataggio standard
+        with open("registrazione.wav", "wb") as f:
+            f.write(audio.get_wav_data())
+        
+        return audio.get_wav_data()
 
     def speech_to_text_from_file(
         self,

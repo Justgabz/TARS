@@ -27,15 +27,18 @@ class Robot_Hardware:
             motor_obj.stop()
             pwm_obj.value = 0
 
-    def set_motors(self, right: int, left: int) -> tuple[int, int]:
+    def set_motors(self, right: int, left: int,interval: int) -> tuple[int, int]:
         """
         Controlla i motori del robot.
         Args:
             right: potenza motore destro [-100, 100]
             left: potenza motore sinistro [-100, 100]
+            interval: tempo che deve passare prima di fermare i motori(se chiedo "vai avanti un po" ad esempio interval = 2)
         """
         self._control_motor(self._right_dir, self._right_pwm, right)
         self._control_motor(self._left_dir, self._left_pwm, left)
+        sleep(interval)
+        self.stop()
         
         return (right, left)
 
