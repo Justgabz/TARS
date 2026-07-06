@@ -1,0 +1,17 @@
+# Environment files
+.env
+**/.env
+
+# Local uploads / generated media
+uploads/
+server/uploads/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Python cache
+__pycache__/
+*.pyc
+
