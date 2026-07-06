@@ -3,20 +3,14 @@ from time import sleep
 
 class Robot_Hardware:
     def __init__(self):
-        # Motore Sinistro (Ex Motore A)
         self._left_dir = Motor(forward=27, backward=17)
         self._left_pwm = PWMOutputDevice(18)
 
-        # Motore Destro (Ex Motore B)
-        # Nota: I pin sono invertiti nel costruttore per gestire la specchiatura hardware
         self._right_dir = Motor(forward=22, backward=23) 
         self._right_pwm = PWMOutputDevice(19)
 
     def _control_motor(self, motor_obj, pwm_obj, speed):
-        """Metodo interno per gestire direzione e PWM di un singolo motore."""
-        # Normalizzazione del valore da [-100, 100] a [-1.0, 1.0]
         val = max(-100, min(100, speed)) / 100.0
-        
         if val > 0:
             motor_obj.forward()
             pwm_obj.value = val
@@ -27,54 +21,49 @@ class Robot_Hardware:
             motor_obj.stop()
             pwm_obj.value = 0
 
-    def set_motors(self, right: int, left: int,interval: int) -> tuple[int, int]:
-        """
-        Controlla i motori del robot.
-        Args:
-            right: potenza motore destro [-100, 100]
-            left: potenza motore sinistro [-100, 100]
-            interval: tempo che deve passare prima di fermare i motori(se chiedo "vai avanti un po" ad esempio interval = 2)
-        """
-        self._control_motor(self._right_dir, self._right_pwm, right)
-        self._control_motor(self._left_dir, self._left_pwm, left)
-        sleep(interval)
-        self.stop()
+    # L'intervallo di default è 0. Cosi non rompe il Joystick.
+    def set_motors(self, dx: int, sx: int, interval: float = 0) -> tuple[int, int, float]:
+        """Controlla i motori del robot."""
+        self._control_motor(self._right_dir, self._right_pwm, dx)
+        self._control_motor(self._left_dir, self._left_pwm, sx)
         
-        return (right, left)
+        if interval > 0:
+            sleep(interval)
+            self.stop()
+            
+        return (dx, sx, interval)
 
     def stop(self):
-        """Ferma immediatamente entrambi i motori."""
-        self.set_motors(0, 0)
+        self._control_motor(self._right_dir, self._right_pwm, 0)
+        self._control_motor(self._left_dir, self._left_pwm, 0)
 
     def close(self):
-        """Rilascia i pin GPIO."""
         self._left_dir.close()
         self._left_pwm.close()
         self._right_dir.close()
         self._right_pwm.close()
 
 
-# --- CLASSE DI EMULAZIONE (Per evitare crash se l'hardware manca) ---
+# --- CLASSE DI EMULAZIONE ---
 class Robot_Hardware_Mock:
     def __init__(self):
         print("[MOCK]: Modalità simulazione ATTIVA (Hardware non trovato)")
 
-    def set_motors(self, dx, sx):
-        # Non fa nulla fisicamente, evita solo che il codice esploda
-        print(f"[MOCK-NAV]: Comando motori ricevuto -> DX: {dx}, SX: {sx}")
+    # Deve avere ESATTAMENTE la stessa firma della classe reale
+    def set_motors(self, dx: int, sx: int, interval: float = 0) -> tuple[int, int, float]:
+        print(f"[MOCK-NAV]: Comando motori ricevuto -> DX: {dx}, SX: {sx}, Tempo: {interval}s")
+        if interval > 0:
+            sleep(interval)
+            print("[MOCK-NAV]: Motori fermati post-intervallo.")
+        return (dx, sx, interval)
 
 
-
-
-
-#se avvio questo file come main,fai questo
 if __name__ == "__main__":
-    rr = Robot_Hardware()
-    rr.set_motors(60,60)
+    rr = Robot_Hardware() # Se lo provi su PC, cambialo in Robot_Hardware_Mock() per testare
+    rr.set_motors(60, 60) # Nessun intervallo, gira all'infinito
     sleep(1)
-    rr.set_motors(-60,60)
+    rr.set_motors(-60, 60)
     sleep(1)
-    rr.set_motors(60,-60)
+    rr.set_motors(60, -60)
     sleep(1)
     rr.stop()
-   

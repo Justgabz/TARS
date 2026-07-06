@@ -100,19 +100,32 @@ async function sendMessage(msg_user) {
 
 // --- 4. AUDIO ---
 async function sendAudio(blob) {
+    const honestyValue = document.getElementById('honesty-slider').value; // Recupera l'onestà
+
     const formData = new FormData();
     formData.append('voice', blob);
+    formData.append('honesty', honestyValue); // Aggiunge l'onestà ai dati del form
 
     try {
-        updateLog("[SYS]: Invio audio in corso...");
+        updateLog("[SYS]: Elaborazione audio in corso...", "yellow");
+
         const response = await fetch(`${SERVER_URL}/upload_audio`, {
             method: 'POST',
-            body: formData
+            body: formData // Non serve Content-Type, fetch lo imposta da solo con FormData
         });
+
         const data = await response.json();
-        updateLog(`[SYS]: Audio ricevuto (${data.status})`);
+
+        if (data.status === "success") {
+            // Mostra cosa ha capito il microfono e cosa risponde TARS
+            updateLog(`[YOU (Audio)]: ${data.text}`, "#00ff00");
+            updateLog(`[TARS]: ${data.reply}`, "cyan");
+        } else {
+            updateLog(`[ERROR]: ${data.detail}`, "var(--tars-red)");
+        }
+
     } catch (err) {
-        updateLog("[ERROR]: Errore caricamento audio", "red");
+        updateLog("[ERROR]: Errore caricamento o timeout audio", "red");
     }
 }
 
@@ -132,8 +145,9 @@ document.getElementById('btn-mic').onclick = async() => {
         mediaRecorder.stop();
         btn.classList.remove('recording');
         mediaRecorder.onstop = () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+            const audioBlob = new Blob(audioChunks, { type: (mediaRecorder && mediaRecorder.mimeType) ? mediaRecorder.mimeType : 'audio/webm' });
             sendAudio(audioBlob);
+
             audioChunks = [];
         };
     }

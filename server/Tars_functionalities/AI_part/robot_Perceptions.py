@@ -142,6 +142,12 @@ class RobotPerception:
                 frames_per_buffer=porcupine.frame_length,
             )
             stream.start_stream() #fornisce un flusso continuo di campioni di audio
+        except Exception as exc:
+            # In molti ambienti (es: Linux vs Windows build) il .ppn può risultare incompatibile.
+            # Non vogliamo che l'intero server crashi: chiudiamo solo il thread hotword.
+            print(f"[WARNING]: Hotword init fallita (thread in uscita): {type(exc).__name__}: {exc}")
+            return
+
 
             while not self._hotword_stop.is_set():
                 pcm = stream.read(porcupine.frame_length, exception_on_overflow=False)
@@ -359,22 +365,32 @@ class RobotPerception:
         volume: Optional[float] = None,
         voice_id: Optional[str] = None,
     ) -> None:
+        """
+        Versione thread-safe per server web usando gTTS.
+        Ignora rate, volume e voice_id che erano specifici di pyttsx3.
+        """
+        import subprocess
+        import uuid
+        from gtts import gTTS
+        
         try:
-            import pyttsx3
-        except ImportError:
-            print("pyttsx3 non installato; impossibile fare TTS.")
-            return
-
-        engine = pyttsx3.init()
-        if voice_id is None: #se è None, di default metti la voce maschile
-            voice_id = self._select_male_voice(engine)
-        if voice_id is not None:
-            engine.setProperty("voice", voice_id)
-        engine.setProperty("rate", rate if rate is not None else 130)
-        if volume is not None:
-            engine.setProperty("volume", volume)
-        engine.say(text)
-        engine.runAndWait()
+            # Genera un nome file univoco per evitare collisioni se ricevi più richieste
+            audio_file = f"tars_voice_{uuid.uuid4().hex}.mp3"
+            
+            # Genera l'audio
+            tts = gTTS(text=text, lang='it')
+            tts.save(audio_file)
+            
+            # Riproduce in modo bloccante (mpg123 deve essere installato su Debian)
+            subprocess.run(["mpg123", "-q", audio_file])
+            
+        except Exception as e:
+            print(f"[ERROR TTS]: Impossibile riprodurre l'audio -> {e}")
+            
+        finally:
+            # Pulizia sicura del file
+            if os.path.exists(audio_file):
+                os.remove(audio_file)
 
     def _select_male_voice(self, engine: Any) -> Optional[str]:
         try:

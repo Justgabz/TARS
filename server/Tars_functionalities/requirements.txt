@@ -10,3 +10,8 @@ pyttsx3
 opencv-python
 sudo apt install mpg123
 pip install gTTS
+ffmpeg
+pip install pydub
+sudo apt update
+sudo apt install ffmpeg
+sudo apt install mpg123
